@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Veterinary — PetCare Resort</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .room-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; }
+    .room-card { border-radius: var(--radius); padding: 1rem; }
+    .room-card.emergency { background: #fee2e2; border: 1.5px solid #fca5a5; }
+    .room-card.general   { background: #e0f2fe; border: 1.5px solid #7dd3fc; }
+    .room-card h4 { font-size:.9rem; font-weight:700; margin-bottom:.5rem; }
+    .room-card.emergency h4 { color:#991b1b; }
+    .room-card.general   h4 { color:#075985; }
+    .room-pet { font-size:.82rem; padding:.2rem 0; border-bottom:1px solid rgba(0,0,0,.06); }
+    .priority-arrow {
+      display: flex; align-items: center; gap:.5rem;
+      font-size:.82rem; color:var(--brown); margin:1rem 0;
+    }
+    .priority-arrow span { background:var(--coral); color:#fff; padding:.2rem .6rem; border-radius:999px; font-weight:700; font-size:.72rem; }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-brand">🐾 PetCare <span>Resort</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="registration.html">Registration</a>
+    <a href="grooming.html">Grooming</a>
+    <a href="vet.html" class="active">Veterinary</a>
+    <a href="billing.html">Billing</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>🏥 Veterinary Checkup</h1>
+  <p>Emergency-first priority scheduling and room allocation</p>
+  <span class="badge-algo">Priority Scheduling</span>
+</div>
+
+<div class="container">
+  <div class="grid-2">
+    <!-- Add Case -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🏥</span> Add Vet Case</div>
+      <div class="form-group">
+        <label>Pet Name</label>
+        <input type="text" id="v-name" placeholder="e.g. Bruno"/>
+      </div>
+      <div class="form-group">
+        <label>Case Type</label>
+        <select id="v-type" onchange="onTypeChange()">
+          <option value="Normal">Normal</option>
+          <option value="Emergency">Emergency</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Condition Description</label>
+        <input type="text" id="v-desc" placeholder="e.g. Annual checkup"/>
+      </div>
+      <div class="form-group">
+        <label>Processing Time (minutes)</label>
+        <input type="number" id="v-time" min="1" value="15"/>
+      </div>
+      <div id="v-room-preview" style="background:var(--sage-light);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:1rem;font-size:.875rem;font-weight:600;color:var(--forest);">
+        🏠 Room: General Room
+      </div>
+      <button class="btn btn-primary btn-full" onclick="addCase()">Add Vet Case</button>
+
+      <div class="priority-arrow mt-2">
+        <span>P1</span> Emergency → Emergency Room
+      </div>
+      <div class="priority-arrow">
+        <span>P2</span> Normal → General Room
+      </div>
+    </div>
+
+    <!-- Schedule -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span> Priority Schedule</div>
+      <div class="flex-between mb-2">
+        <span class="text-sm text-muted fw-bold">Algorithm: Priority Scheduling</span>
+        <button class="btn btn-secondary btn-sm" onclick="loadSchedule()">↻ Refresh</button>
+      </div>
+      <div style="display:flex;gap:1rem;margin-bottom:1rem">
+        <div class="stat-card" style="flex:1">
+          <div class="stat-value" id="v-stat-awt">–</div>
+          <div class="stat-label">Avg Wait</div>
+        </div>
+        <div class="stat-card" style="flex:1">
+          <div class="stat-value" id="v-stat-att">–</div>
+          <div class="stat-label">Avg Turnaround</div>
+        </div>
+      </div>
+      <div class="text-sm fw-bold mb-1 text-muted">Treatment Order</div>
+      <div class="gantt" id="v-gantt"></div>
+
+      <!-- Room allocation -->
+      <hr class="divider"/>
+      <div class="text-sm fw-bold mb-1 text-muted">Room Allocation</div>
+      <div class="room-grid">
+        <div class="room-card emergency">
+          <h4>🚨 Emergency Room</h4>
+          <div id="v-room-emergency"><em class="text-sm">Loading…</em></div>
+        </div>
+        <div class="room-card general">
+          <h4>🏥 General Room</h4>
+          <div id="v-room-general"><em class="text-sm">Loading…</em></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt-3">
+    <div class="card-title"><span class="icon">📋</span> All Vet Cases</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Pet</th><th>Type</th><th>Condition</th><th>Priority</th><th>Room</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="v-tbl-all"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/vet.js"></script>
+</body>
+</html>

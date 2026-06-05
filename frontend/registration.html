@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Registration — PetCare Resort</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    /* SJF preview box */
+    #sjf-preview {
+      display: none;
+      background: var(--cream);
+      border: 1.5px dashed var(--gold);
+      border-radius: var(--radius);
+      padding: .85rem 1rem;
+      margin-bottom: 1rem;
+    }
+    /* Service-flow chips in table */
+    .flow-chip {
+      display: inline-flex; align-items: center;
+      gap: .25rem; padding: .15rem .55rem;
+      border-radius: 6px; font-size: .72rem; font-weight: 700;
+      color: #fff; margin-right: .2rem;
+    }
+    .sjf-note {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius);
+      padding: .65rem 1rem;
+      font-size: .8rem; color: #92400e;
+      margin-top: .75rem;
+      line-height: 1.55;
+    }
+    .sjf-note strong { color: #78350f; }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-brand">🐾 PetCare <span>Resort</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="registration.html" class="active">Registration</a>
+    <a href="grooming.html">Grooming</a>
+    <a href="vet.html">Veterinary</a>
+    <a href="billing.html">Billing</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>📋 Registration System</h1>
+  <p>Pet intake, service selection, and queue scheduling</p>
+  <span class="badge-algo">FCFS</span>
+  <span class="badge-algo">SJF</span>
+</div>
+
+<div class="container">
+  <div class="grid-2">
+
+    <!-- ── Registration Form ─────────────────────────────────── -->
+    <div class="card">
+      <div class="card-title"><span class="icon">➕</span> Register New Pet</div>
+
+      <div class="form-group">
+        <label>Pet Name</label>
+        <input type="text" id="reg-pet-name" placeholder="e.g. Bruno"/>
+      </div>
+
+      <div class="form-group">
+        <label>Owner Name</label>
+        <input type="text" id="reg-owner" placeholder="e.g. Ahmed Khan"/>
+      </div>
+
+      <div class="grid-2" style="gap:.75rem">
+        <div class="form-group">
+          <label>Species</label>
+          <select id="reg-species">
+            <option>Dog</option>
+            <option>Cat</option>
+            <option>Bird</option>
+            <option>Rabbit</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Age (years)</label>
+          <input type="number" id="reg-age" min="0" step="0.5" placeholder="3"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contact</label>
+        <input type="text" id="reg-contact" placeholder="0300-1234567"/>
+      </div>
+
+      <!-- ── Service selector — key SJF trigger ─────────────── -->
+      <div class="form-group">
+        <label>Service Required</label>
+        <select id="reg-service" onchange="onServiceChange()">
+          <option value="grooming">   ✂️  Grooming only (10 min)</option>
+          <option value="veterinary"> 🏥  Veterinary only (8 min)</option>
+          <option value="both">       ✂️🏥 Both — Grooming + Veterinary (SJF applied)</option>
+        </select>
+      </div>
+
+      <!-- ── SJF execution-order preview (shown only for "both") ── -->
+      <div id="sjf-preview"></div>
+
+      <!-- Manual override (hidden when "both" is selected) -->
+      <div id="proc-time-row" class="form-group">
+        <label>Processing Time (auto-filled)</label>
+        <input type="number" id="reg-time" min="1" value="8" readonly
+               style="background:var(--sand);cursor:not-allowed;"/>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="registerPet()">
+        Register Pet
+      </button>
+
+      <!-- Algorithm explanation note -->
+      <div class="sjf-note mt-2">
+        <strong>How SJF is triggered:</strong> SJF applies only when a pet selects
+        <em>Both</em> services. The system compares service durations and schedules
+        the shorter one first — minimising total waiting time for that pet.<br/>
+        <strong>FCFS</strong> applies otherwise: first arrived, first served.
+      </div>
+    </div>
+
+    <!-- ── Schedule View ─────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span> Registration Queue</div>
+
+      <div class="flex-between mb-2">
+        <div class="algo-toggle">
+          <button id="btn-fcfs" class="active" onclick="renderQueue('FCFS')">FCFS</button>
+          <button id="btn-sjf"                 onclick="renderQueue('SJF')">SJF</button>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="renderQueue(currentAlgo)">↻ Refresh</button>
+      </div>
+
+      <!-- Stats -->
+      <div style="display:flex;gap:1rem;margin-bottom:1rem">
+        <div class="stat-card" style="flex:1">
+          <div class="stat-value" id="stat-awt">–</div>
+          <div class="stat-label">Avg Wait (min)</div>
+        </div>
+        <div class="stat-card" style="flex:1">
+          <div class="stat-value" id="stat-att">–</div>
+          <div class="stat-label">Avg Turnaround</div>
+        </div>
+      </div>
+
+      <!-- Gantt -->
+      <div class="text-sm fw-bold mb-1 text-muted">Gantt Chart</div>
+      <div class="gantt" id="gantt-reg"></div>
+
+      <hr class="divider"/>
+
+      <!-- Order Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Pet</th>
+              <th>Burst</th>
+              <th>Wait</th>
+              <th>Service / SJF Flow</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-reg-order"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /grid-2 -->
+
+  <!-- ── All Registrations Log ──────────────────────────────── -->
+  <div class="card mt-3">
+    <div class="card-title"><span class="icon">📋</span> All Registrations</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Pet</th>
+            <th>Burst (min)</th>
+            <th>Registered At</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-reg-all"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<div id="toast"></div>
+<script src="js/registration.js"></script>
+</body>
+</html>

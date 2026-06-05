@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Dashboard — PetCare Resort</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .kpi { background: var(--warm-white); border: 1px solid var(--sand); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; }
+    .kpi-val { font-family: var(--font-display); font-size: 2.5rem; line-height: 1; color: var(--forest); }
+    .kpi-lbl { font-size: .75rem; color: var(--brown); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-top: .3rem; }
+    .kpi-sub { font-size: .75rem; color: var(--sage); margin-top: .2rem; }
+    .algo-legend { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .algo-item { display: flex; align-items: center; gap: .5rem; font-size: .82rem; font-weight: 600; color: var(--dark); }
+    .algo-dot  { width: 12px; height: 12px; border-radius: 50%; }
+    .recent-table td:first-child { font-weight: 600; }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-brand">🐾 PetCare <span>Resort</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="dashboard.html" class="active">Dashboard</a>
+    <a href="registration.html">Registration</a>
+    <a href="grooming.html">Grooming</a>
+    <a href="vet.html">Veterinary</a>
+    <a href="billing.html">Billing</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>System Dashboard</h1>
+  <p>Live overview of all four departments and scheduling activity</p>
+</div>
+
+<div class="container">
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-val" id="kpi-reg">–</div>
+      <div class="kpi-lbl">Registrations</div>
+      <div class="kpi-sub">Total in queue</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val" id="kpi-groom">–</div>
+      <div class="kpi-lbl">Grooming</div>
+      <div class="kpi-sub">Tasks pending</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val" id="kpi-vet">–</div>
+      <div class="kpi-lbl">Vet Cases</div>
+      <div class="kpi-sub">Awaiting treatment</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val" id="kpi-bill">–</div>
+      <div class="kpi-lbl">Billing</div>
+      <div class="kpi-sub">Pending payments</div>
+    </div>
+  </div>
+
+  <!-- Algorithm Summary -->
+  <div class="card mb-2">
+    <div class="card-title"><span class="icon">🧠</span> Algorithms in Use</div>
+    <div class="algo-legend">
+      <div class="algo-item"><div class="algo-dot" style="background:#3D5A3E"></div> FCFS — First Come First Served</div>
+      <div class="algo-item"><div class="algo-dot" style="background:#C9973A"></div> SJF — Shortest Job First</div>
+      <div class="algo-item"><div class="algo-dot" style="background:#E07A5F"></div> Priority Scheduling</div>
+      <div class="algo-item"><div class="algo-dot" style="background:#7BB8C9"></div> Round Robin (Quantum = 2s)</div>
+    </div>
+    <div class="grid-2 mt-2">
+      <div>
+        <div class="text-sm fw-bold mb-2">📋 Registration &amp; ✂️ Grooming</div>
+        <p class="text-sm text-muted">Use <strong>FCFS</strong> to process pets in arrival order, or switch to <strong>SJF</strong> to prioritise short tasks and minimise average waiting time.</p>
+      </div>
+      <div>
+        <div class="text-sm fw-bold mb-2">🏥 Vet &amp; 💰 Billing</div>
+        <p class="text-sm text-muted"><strong>Priority Scheduling</strong> ensures emergency cases are treated first. <strong>Round Robin</strong> with a 2-second quantum gives every pet equal billing &amp; daycare time.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent activity tables -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="icon">📋</span> Recent Registrations</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pet</th><th>Burst (min)</th><th>Status</th></tr></thead>
+          <tbody id="tbl-reg"><tr><td colspan="3" class="loader"><div class="spinner"></div> Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">🏥</span> Vet Queue</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pet</th><th>Type</th><th>Room</th></tr></thead>
+          <tbody id="tbl-vet"><tr><td colspan="3" class="loader"><div class="spinner"></div> Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+async function loadDashboard() {
+  try {
+    const [reg, vet, groom, bill] = await Promise.all([
+      API.getAllReg(), API.getAllVet(), API.getAllGrooming(), API.getAllBilling()
+    ]);
+
+    document.getElementById('kpi-reg').textContent   = reg.filter(r=>r.status!='done').length;
+    document.getElementById('kpi-groom').textContent = groom.filter(r=>r.status!='completed').length;
+    document.getElementById('kpi-vet').textContent   = vet.filter(r=>r.status=='waiting').length;
+    document.getElementById('kpi-bill').textContent  = bill.filter(r=>r.status=='pending').length;
+
+    const regTbl = document.getElementById('tbl-reg');
+    regTbl.innerHTML = reg.slice(0,6).map(r => `
+      <tr>
+        <td class="fw-bold">${r.pet_name}</td>
+        <td>${r.processing_time} min</td>
+        <td><span class="status status-${r.status==='done'?'done':r.status==='processing'?'processing':'waiting'}">${r.status}</span></td>
+      </tr>`).join('') || '<tr><td colspan="3" class="empty">No data</td></tr>';
+
+    const vetTbl = document.getElementById('tbl-vet');
+    vetTbl.innerHTML = vet.slice(0,6).map(v => `
+      <tr>
+        <td class="fw-bold">${v.pet_name}</td>
+        <td><span class="status status-${v.case_type==='Emergency'?'emergency':'normal'}">${v.case_type}</span></td>
+        <td class="text-sm">${v.room_assigned}</td>
+      </tr>`).join('') || '<tr><td colspan="3" class="empty">No data</td></tr>';
+
+  } catch(e) {
+    console.error(e);
+    ['tbl-reg','tbl-vet'].forEach(id=>{
+      document.getElementById(id).innerHTML = `<tr><td colspan="3" class="empty">Backend not connected — seed your DB and start the server.</td></tr>`;
+    });
+    document.getElementById('kpi-reg').textContent  = '?';
+    document.getElementById('kpi-groom').textContent= '?';
+    document.getElementById('kpi-vet').textContent  = '?';
+    document.getElementById('kpi-bill').textContent = '?';
+  }
+}
+loadDashboard();
+</script>
+</body>
+</html>

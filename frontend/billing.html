@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Billing &amp; Daycare — PetCare Resort</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .quantum-badge {
+      display:inline-flex; align-items:center; gap:.4rem;
+      background:var(--sky); color:var(--dark);
+      padding:.3rem .8rem; border-radius:999px;
+      font-size:.78rem; font-weight:700;
+    }
+    .activity-Play     { background:#dcfce7; color:#166534; }
+    .activity-Training { background:#dbeafe; color:#1e40af; }
+    .activity-Ball     { background:#fef3c7; color:#92400e; }
+    .tabs { display:flex; gap:.5rem; margin-bottom:1.5rem; }
+    .tab-btn {
+      font-family:var(--font-body); font-size:.875rem; font-weight:600;
+      padding:.55rem 1.2rem; border-radius:var(--radius);
+      border:1.5px solid var(--sand);
+      background:transparent; cursor:pointer; color:var(--brown);
+      transition:all .2s;
+    }
+    .tab-btn.active { background:var(--forest); color:#fff; border-color:var(--forest); }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* Daycare pet chips */
+    .dc-pet-list {
+      display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.75rem;
+    }
+    .dc-pet-chip {
+      display:inline-flex; align-items:center; gap:.4rem;
+      background:var(--sage-light); color:var(--forest);
+      padding:.3rem .75rem; border-radius:999px;
+      font-size:.82rem; font-weight:600;
+    }
+    .dc-pet-chip button {
+      background:none; border:none; cursor:pointer;
+      color:var(--forest); font-size:.85rem; line-height:1; padding:0;
+    }
+    .dc-pet-chip button:hover { color:var(--coral); }
+
+    .rr-note {
+      background:#e0f2fe; border:1px solid #7dd3fc;
+      border-radius:var(--radius); padding:.65rem 1rem;
+      font-size:.8rem; color:#075985;
+      margin-bottom:1rem; line-height:1.55;
+    }
+    .rr-note strong { color:#0c4a6e; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand">🐾 PetCare <span>Resort</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="registration.html">Registration</a>
+    <a href="grooming.html">Grooming</a>
+    <a href="vet.html">Veterinary</a>
+    <a href="billing.html" class="active">Billing</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>💰 Billing &amp; Daycare</h1>
+  <p>Round Robin scheduling — equal time slice for every pet</p>
+  <span class="badge-algo">Round Robin</span>
+  <span style="margin-left:.5rem" class="quantum-badge">⏱ Quantum = 2s</span>
+</div>
+
+<div class="container">
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('billing')">💰 Billing</button>
+    <button class="tab-btn"        onclick="switchTab('daycare')">🐶 Daycare</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       BILLING TAB
+       ══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-billing">
+    <div class="grid-2">
+
+      <!-- Add billing entry -->
+      <div class="card">
+        <div class="card-title"><span class="icon">💰</span> Add to Billing Queue</div>
+
+        <div class="rr-note">
+          <strong>Round Robin Billing:</strong> Each pet gets exactly one
+          time quantum (2 s) of billing processor time per round. The cycle
+          repeats — Bruno → Max → Tom → Bruno → Max → Tom … — until all
+          balances are cleared. No pet waits indefinitely.
+        </div>
+
+        <div class="form-group">
+          <label>Pet Name</label>
+          <input type="text" id="b-name" placeholder="e.g. Bruno"/>
+        </div>
+        <div class="form-group">
+          <label>Total Amount (PKR)</label>
+          <input type="number" id="b-amount" min="1" placeholder="4500"/>
+        </div>
+        <div class="form-group">
+          <label>Time Quantum (seconds)</label>
+          <input type="number" id="b-quantum" value="2" min="1"/>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="addBilling()">
+          Add to Billing Queue
+        </button>
+
+        <hr class="divider"/>
+        <div class="text-sm text-muted italic">
+          <strong>Example execution (Q = 2s):</strong><br/>
+          Round 1: Bruno(2s) → Max(2s) → Tom(2s)<br/>
+          Round 2: Bruno(2s) → Max(2s) → Tom(2s)<br/>
+          … until all balances cleared
+        </div>
+      </div>
+
+      <!-- Round Robin schedule view -->
+      <div class="card">
+        <div class="card-title"><span class="icon">📊</span> Round Robin Schedule</div>
+        <div class="flex-between mb-2">
+          <span class="text-sm text-muted fw-bold">Algorithm: Round Robin</span>
+          <button class="btn btn-secondary btn-sm" onclick="loadBillingSchedule()">↻ Refresh</button>
+        </div>
+        <div style="display:flex;gap:1rem;margin-bottom:1rem">
+          <div class="stat-card" style="flex:1">
+            <div class="stat-value" id="b-stat-awt">–</div>
+            <div class="stat-label">Avg Wait</div>
+          </div>
+          <div class="stat-card" style="flex:1">
+            <div class="stat-value" id="b-stat-att">–</div>
+            <div class="stat-label">Avg Turnaround</div>
+          </div>
+        </div>
+
+        <div class="text-sm fw-bold mb-1 text-muted">Round Execution</div>
+        <div id="b-rounds"></div>
+      </div>
+
+    </div><!-- /grid-2 -->
+
+    <!-- All billing records -->
+    <div class="card mt-3">
+      <div class="card-title"><span class="icon">📋</span> All Billing Records</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Pet</th><th>Total</th><th>Remaining</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody id="b-tbl-all"></tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /tab-billing -->
+
+  <!-- ══════════════════════════════════════════════════════════
+       DAYCARE TAB
+       ══════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-daycare">
+
+    <div class="grid-2 mb-2">
+
+      <!-- Add daycare pet -->
+      <div class="card">
+        <div class="card-title"><span class="icon">🐶</span> Add Pet to Daycare</div>
+
+        <div class="rr-note">
+          <strong>Round Robin Daycare:</strong> Activities rotate in order —
+          <em>Play Area → Training → Ball Area</em>. Every pet gets exactly
+          2 seconds per activity slot. After all pets finish one activity,
+          the next activity round begins.
+        </div>
+
+        <div class="form-group">
+          <label>Pet Name</label>
+          <input type="text" id="dc-name" placeholder="e.g. Bruno"/>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="addDaycarePet()">
+          Add to Daycare
+        </button>
+
+        <!-- Current daycare pets list -->
+        <hr class="divider"/>
+        <div class="text-sm fw-bold mb-1 text-muted">Pets in Daycare</div>
+        <div class="dc-pet-list" id="dc-pet-list">
+          <em class="text-sm text-muted">Loading…</em>
+        </div>
+      </div>
+
+      <!-- Activity legend -->
+      <div class="card">
+        <div class="card-title"><span class="icon">📋</span> Activity Rotation Info</div>
+        <div style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem;">
+          <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:#dcfce7;border-radius:var(--radius);">
+            <span style="font-size:1.8rem;">🎾</span>
+            <div>
+              <div style="font-weight:700;color:#166534;">Round 1 — Play Area</div>
+              <div style="font-size:.8rem;color:#166534;">Every pet gets 2 s in the play area</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:#dbeafe;border-radius:var(--radius);">
+            <span style="font-size:1.8rem;">🎯</span>
+            <div>
+              <div style="font-weight:700;color:#1e40af;">Round 2 — Training</div>
+              <div style="font-size:.8rem;color:#1e40af;">Every pet gets 2 s of trainer attention</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.75rem;padding:.75rem;background:#fef3c7;border-radius:var(--radius);">
+            <span style="font-size:1.8rem;">⚽</span>
+            <div>
+              <div style="font-weight:700;color:#92400e;">Round 3 — Ball Area</div>
+              <div style="font-size:.8rem;color:#92400e;">Every pet gets 2 s in the ball zone</div>
+            </div>
+          </div>
+        </div>
+        <div class="text-sm text-muted italic">
+          Quantum = 2s · No starvation · Equal activity time guaranteed
+        </div>
+      </div>
+
+    </div><!-- /grid-2 -->
+
+    <!-- Daycare schedule output -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span> Daycare Activity Schedule</div>
+      <div class="flex-between mb-2">
+        <span class="text-sm fw-bold text-muted">Activities: Play Area → Training → Ball Area</span>
+        <button class="btn btn-secondary btn-sm" onclick="loadDaycare()">↻ Refresh</button>
+      </div>
+      <div id="daycare-rounds"></div>
+    </div>
+
+  </div><!-- /tab-daycare -->
+
+</div><!-- /container -->
+
+<div id="toast"></div>
+<script src="js/billing.js"></script>
+
+<!-- Sync daycare pet chips whenever loadDaycare() is called -->
+<script>
+  // Patch loadDaycare to also refresh the chip list
+  const _origLoadDaycare = loadDaycare;
+  function loadDaycare() {
+    _origLoadDaycare();
+    const chipEl = document.getElementById('dc-pet-list');
+    if (!chipEl) return;
+    if (!DAY_QUEUE || DAY_QUEUE.length === 0) {
+      chipEl.innerHTML = '<em class="text-sm text-muted">No pets added yet</em>';
+      return;
+    }
+    chipEl.innerHTML = DAY_QUEUE.map(p => `
+      <div class="dc-pet-chip">
+        🐾 ${p.pet_name}
+        <button onclick="removeDaycarePet(${p.id})" title="Remove">×</button>
+      </div>`).join('');
+  }
+
+  function removeDaycarePet(id) {
+    const idx = DAY_QUEUE.findIndex(p => p.id === id);
+    if (idx !== -1) {
+      const name = DAY_QUEUE[idx].pet_name;
+      DAY_QUEUE.splice(idx, 1);
+      toast(`${name} removed from daycare`);
+      loadDaycare();
+    }
+  }
+
+  // Initial chip render after seed
+  (function() {
+    const chipEl = document.getElementById('dc-pet-list');
+    if (!chipEl || !window.DAY_QUEUE) return;
+    chipEl.innerHTML = DAY_QUEUE.map(p => `
+      <div class="dc-pet-chip">
+        🐾 ${p.pet_name}
+        <button onclick="removeDaycarePet(${p.id})" title="Remove">×</button>
+      </div>`).join('');
+  })();
+</script>
+</body>
+</html>

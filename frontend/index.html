@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>PetCare Resort — OS Scheduling System</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: grid;
+      place-items: center;
+      background: linear-gradient(160deg, var(--dark) 0%, #3d2b18 40%, var(--forest) 100%);
+      padding: 3rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '🐾';
+      position: absolute;
+      font-size: 30rem;
+      opacity: .04;
+      top: -6rem;
+      right: -6rem;
+      line-height: 1;
+    }
+    .hero-inner { position: relative; max-width: 780px; margin: 0 auto; }
+    .hero-tag {
+      display: inline-block;
+      border: 1px solid var(--sage);
+      color: var(--sage-light);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: .35rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      color: #fff;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 em { color: var(--tan); font-style: normal; }
+    .hero p { color: rgba(255,255,255,.65); font-size: 1.1rem; max-width: 560px; margin: 0 auto 2.5rem; }
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .dept-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+    .dept-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      text-align: left;
+      text-decoration: none;
+      transition: background .2s, transform .2s, box-shadow .2s;
+    }
+    .dept-card:hover {
+      background: rgba(255,255,255,.1);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,.3);
+    }
+    .dept-icon { font-size: 2.2rem; margin-bottom: 1rem; display: block; }
+    .dept-card h3 { color: var(--tan); font-size: 1.1rem; margin-bottom: .4rem; }
+    .dept-card p  { color: rgba(255,255,255,.55); font-size: .85rem; margin: 0; }
+    .dept-card .algos { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .75rem; }
+    .dept-card .algos span {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      background: rgba(201,151,58,.2);
+      color: var(--gold);
+      border: 1px solid rgba(201,151,58,.3);
+      padding: .15rem .55rem;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-brand">🐾 PetCare <span>Resort</span></a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="registration.html">Registration</a>
+    <a href="grooming.html">Grooming</a>
+    <a href="vet.html">Veterinary</a>
+    <a href="billing.html">Billing</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Operating Systems — Scheduling Algorithms</div>
+    <h1>Multi-Stage <em>Pet Care</em> Resort System</h1>
+    <p>A real-world simulation of OS scheduling algorithms across four departments of a pet care resort.</p>
+    <div class="hero-cta">
+      <a href="dashboard.html" class="btn btn-primary">View Dashboard</a>
+      <a href="registration.html" class="btn btn-secondary">Register a Pet</a>
+    </div>
+
+    <div class="dept-grid">
+      <a href="registration.html" class="dept-card">
+        <span class="dept-icon">📋</span>
+        <h3>Registration</h3>
+        <p>Pet intake and queue management</p>
+        <div class="algos"><span>FCFS</span><span>SJF</span></div>
+      </a>
+      <a href="grooming.html" class="dept-card">
+        <span class="dept-icon">✂️</span>
+        <h3>Grooming</h3>
+        <p>Baths, haircuts, nail trims</p>
+        <div class="algos"><span>FCFS</span><span>SJF</span></div>
+      </a>
+      <a href="vet.html" class="dept-card">
+        <span class="dept-icon">🏥</span>
+        <h3>Veterinary</h3>
+        <p>Checkups and emergency care</p>
+        <div class="algos"><span>Priority Scheduling</span></div>
+      </a>
+      <a href="billing.html" class="dept-card">
+        <span class="dept-icon">💰</span>
+        <h3>Billing & Daycare</h3>
+        <p>Payments and activity scheduling</p>
+        <div class="algos"><span>Round Robin</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+</body>
+</html>

@@ -18,7 +18,7 @@ const TASK_TIMES = {
   'Nail Trim':   5,
   'Ear Clean':   8,
   'Bath':       10,
-  'Full Groom': 20,
+  'Full Groom': 45,
   'Haircut':    30,
 };
 
